@@ -130,7 +130,7 @@
                     <div id="title-${torrent.infoHash}">${App.plugins.mediaName.getMediaName(torrent)}</div>
                 </a>
 
-                <i class="fa fa-trash-alt watched trash-torrent" id="trash-${torrent.infoHash}"></i>
+                <i class="fa fa-trash watched trash-torrent" id="trash-${torrent.infoHash}"></i>
                 <i class="fa fa-play watched resume-torrent" id="play-${torrent.infoHash}" style="display: ${torrent.paused ? '' : 'none'};"></i>
                 <i class="fa fa-pause-circle watched pause-torrent" id="resume-${torrent.infoHash}" style="display: ${torrent.paused ? 'none' : ''};"></i>
                 <i class="fa fa-upload watched" id="upload-${torrent.infoHash}"> 0 Kb/s</i>
@@ -241,8 +241,8 @@
 		    const torrent = this.getTorrentFromEvent(e);
 		    if (torrent) {
 				torrent.destroy(() => {
-					fs.unlinkSync(path.join(torrentsDir, torrent.infoHash));
-					rimraf(path.join(App.settings.tmpLocation, torrent.infoHash), () => {
+					try { fs.unlinkSync(path.join(torrentsDir, torrent.infoHash)); } catch(err) {}
+					rimraf(path.join(App.settings.tmpLocation, torrent.name), () => {
 					});
 				});
 
@@ -277,7 +277,7 @@
 			}
 
 			const infoHash = $elem.attr('id');
-			const stats = fs.statSync(App.settings.tmpLocation + '/TorrentCache/' + infoHash);
+			try { const stats = fs.statSync(App.settings.tmpLocation + '/TorrentCache/' + infoHash); } catch(err) {}
 			const torrent = App.WebTorrent.get(infoHash);
 
 			if (wasJustSelected) {
@@ -290,7 +290,7 @@
 			$('.seedbox-infos-title').text(torrent.name);
 			$('.seedbox-downloaded').text(' ' + formatBytes(torrent.downloaded));
 			$('.seedbox-uploaded').text(' ' + formatBytes(torrent.uploaded));
-			$('.seedbox-infos-date').text(stats.ctime);
+			try { $('.seedbox-infos-date').text(stats.ctime); } catch(err) {}
 			$('.progress-bar').css('width', (torrent.progress * 100).toFixed(2) + '%');
 			$('.progress-percentage>span').text((torrent.progress * 100).toFixed(2) + '%');
 
